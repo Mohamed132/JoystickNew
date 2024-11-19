@@ -44,37 +44,50 @@
     const joystick = document.getElementById('joystick');
     const container = document.getElementById('joystick-container');
 
-    let containerRect, maxDistance;
+    let containerRect, centerX, centerY, maxDistance;
 
-    // Initialize center coordinates and max distance
     function init() {
       containerRect = container.getBoundingClientRect();
+      centerX = containerRect.left + containerRect.width / 2;
+      centerY = containerRect.top + containerRect.height / 2;
       maxDistance = containerRect.width / 2 - joystick.offsetWidth / 2;
+    }
+
+    function handleTouchStart(event) {
+      event.preventDefault();
     }
 
     function handleTouchMove(event) {
       const touch = event.touches[0];
-      const dx = touch.clientX - (containerRect.left + containerRect.width / 2);
-      const dy = touch.clientY - (containerRect.top + containerRect.height / 2);
-      const distance = Math.min(Math.sqrt(dx * dx + dy * dy), maxDistance);
+      const dx = touch.clientX - centerX;
+      const dy = touch.clientY - centerY;
 
+      // Calculate distance and clamp within maxDistance
+      const distance = Math.min(Math.sqrt(dx * dx + dy * dy), maxDistance);
       const angle = Math.atan2(dy, dx);
+
       const x = Math.cos(angle) * distance;
       const y = Math.sin(angle) * distance;
 
-      joystick.style.left = `${50 + (x / maxDistance) * 50}%`;
-      joystick.style.top = `${50 + (y / maxDistance) * 50}%`;
+      // Update joystick position
+      joystick.style.left = `${50 + (x / containerRect.width) * 100}%`;
+      joystick.style.top = `${50 + (y / containerRect.height) * 100}%`;
     }
 
     function handleTouchEnd() {
+      // Reset joystick to center
       joystick.style.left = '50%';
       joystick.style.top = '50%';
     }
 
+    // Initialize the joystick
     init();
+    window.addEventListener('resize', init);
+
+    // Attach event listeners
+    joystick.addEventListener('touchstart', handleTouchStart);
     joystick.addEventListener('touchmove', handleTouchMove);
     joystick.addEventListener('touchend', handleTouchEnd);
-    window.addEventListener('resize', init);
   </script>
 </body>
 </html>
