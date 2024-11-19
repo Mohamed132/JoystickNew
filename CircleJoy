@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Joystick</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: #f0f0f0;
+    }
+
+    #joystick-container {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      background: #ccc;
+      border: 2px solid #999;
+      border-radius: 50%;
+    }
+
+    #joystick {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      background: #555;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      touch-action: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="joystick-container">
+    <div id="joystick"></div>
+  </div>
+  <script>
+    const joystick = document.getElementById('joystick');
+    const container = document.getElementById('joystick-container');
+
+    let containerRect, maxDistance;
+
+    // Initialize center coordinates and max distance
+    function init() {
+      containerRect = container.getBoundingClientRect();
+      maxDistance = containerRect.width / 2 - joystick.offsetWidth / 2;
+    }
+
+    function handleTouchMove(event) {
+      const touch = event.touches[0];
+      const dx = touch.clientX - (containerRect.left + containerRect.width / 2);
+      const dy = touch.clientY - (containerRect.top + containerRect.height / 2);
+      const distance = Math.min(Math.sqrt(dx * dx + dy * dy), maxDistance);
+
+      const angle = Math.atan2(dy, dx);
+      const x = Math.cos(angle) * distance;
+      const y = Math.sin(angle) * distance;
+
+      joystick.style.left = `${50 + (x / maxDistance) * 50}%`;
+      joystick.style.top = `${50 + (y / maxDistance) * 50}%`;
+    }
+
+    function handleTouchEnd() {
+      joystick.style.left = '50%';
+      joystick.style.top = '50%';
+    }
+
+    init();
+    joystick.addEventListener('touchmove', handleTouchMove);
+    joystick.addEventListener('touchend', handleTouchEnd);
+    window.addEventListener('resize', init);
+  </script>
+</body>
+</html>
